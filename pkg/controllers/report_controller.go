@@ -1,8 +1,10 @@
 package controllers
 
 import (
+	"encoding/json"
 	"log"
 
+	"github.com/hrmadani/nmapdojo-report/pkg/models"
 	"github.com/streadway/amqp"
 )
 
@@ -62,13 +64,36 @@ func ConsumeFromRabbit() {
 	failOnError(err, "Failed to register a consumer")
 
 	forever := make(chan bool)
-
+	var ReportLog models.UserReport
 	go func() {
 		for d := range msgs {
-			log.Printf("Received a message: %s", d.Body)
+			json.Unmarshal([]byte(d.Body), &ReportLog)
+
+			failOnError(err, "Failed to Unmarshal")
+
+			switch ReportLog.Action {
+			case "add":
+				ActionIsAdd()
+			default:
+				ActionIsNotAdd()
+			}
 		}
 	}()
 
 	log.Printf(" [*] Waiting for messages. To exit press CTRL+C")
 	<-forever
+}
+
+//If the action is add :
+//Add new Report
+//Add new Log
+func ActionIsAdd() {
+	log.Println("Action is ADD")
+}
+
+//If the action is add :
+//Change the expire_time in Report
+//Add new Log
+func ActionIsNotAdd() {
+	log.Println("Action is not ADD")
 }
