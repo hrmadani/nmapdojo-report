@@ -6,6 +6,7 @@ import (
 	"github.com/streadway/amqp"
 )
 
+//Constants
 const (
 	RabbitMQName             = "user_report"
 	RabbitMQDurable          = false
@@ -24,6 +25,9 @@ func failOnError(err error, msg string) {
 	}
 }
 
+//The main function in this service
+//Consume messages from RabbitMQ
+//Call the appropriate function to save messages to database
 func ConsumeFromRabbit() {
 	conn, err := amqp.Dial("amqp://guest:guest@localhost:5672/")
 	failOnError(err, "Failed to connect to RabbitMQ")
