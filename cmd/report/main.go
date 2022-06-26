@@ -1,6 +1,8 @@
 package main
 
-import "github.com/hrmadani/nmapdojo-plaza/pkg/controllers"
+import (
+	"github.com/hrmadani/nmapdojo-report/pkg/controllers"
+)
 
 func main() {
 	controllers.ConsumeFromRabbit()

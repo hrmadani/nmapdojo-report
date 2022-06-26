@@ -8,6 +8,9 @@ import (
 
 //Constants
 const (
+	RabbitMQUserName         = "guest"
+	RabbitMQPassword         = "guest"
+	RabbitMQServer           = "localhost:5672/"
 	RabbitMQName             = "user_report"
 	RabbitMQDurable          = false
 	RabbitMQDeleteWhenUnused = false
@@ -29,7 +32,7 @@ func failOnError(err error, msg string) {
 //Consume messages from RabbitMQ
 //Call the appropriate function to save messages to database
 func ConsumeFromRabbit() {
-	conn, err := amqp.Dial("amqp://guest:guest@localhost:5672/")
+	conn, err := amqp.Dial("amqp://" + RabbitMQUserName + ":" + RabbitMQPassword + "@" + RabbitMQServer)
 	failOnError(err, "Failed to connect to RabbitMQ")
 	defer conn.Close()
 
