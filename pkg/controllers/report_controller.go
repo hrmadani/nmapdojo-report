@@ -26,6 +26,7 @@ const (
 var (
 	UserReport models.UserReport
 	Report     models.Report
+	ReportLog  models.ReportLog
 )
 
 //Error Handler
@@ -93,7 +94,11 @@ func ConsumeFromRabbit() {
 //Add new Log
 func ActionIsAdd() {
 	log.Printf("Action is ADD ==> ")
-	Report.Save(UserReport)
+	//Save new Report
+	reportId, _ := Report.Save(UserReport)
+
+	//Save new Log
+	ReportLog.Save(UserReport, reportId)
 }
 
 //If the action is add :

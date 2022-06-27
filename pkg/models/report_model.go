@@ -1,7 +1,6 @@
 package models
 
 import (
-	"fmt"
 	"log"
 	"time"
 
@@ -45,8 +44,8 @@ type Report struct {
 //Which Report
 type ReportLog struct {
 	gorm.Model
-	ReportId  int    `json:"report_id"`
-	UserId    int    `json:"user_id"`
+	ReportId  uint   `json:"report_id"`
+	UserId    uint   `json:"user_id"`
 	Action    string `json:"action"` //add , like , dislike
 	CreatedAt time.Time
 }
@@ -67,27 +66,36 @@ func GetReportTypeProperties(userReportType string) ReportType {
 }
 
 //Save to the reports table
-func (r *Report) Save(userReport UserReport) error {
+func (r *Report) Save(userReport UserReport) (uint, error) {
 	GetReportTypeProperties(userReport.ReportType)
 	//Save message to the reports table
 	var CreatedAt = userReport.CreatedAt
 	r.ID = 0
 	r.ExpireTime = CreatedAt.Add(time.Duration(reportType.LifeSpan) * time.Minute)
 	r.ReportType = userReport.ReportType
-	fmt.Printf("Inserted Report : %v \n", r)
+
 	result := db.Create(r)
 	if result.Error != nil {
 		log.Printf("[x] Inserting report fail: %v \n", result.Error)
-		return result.Error
+		return 0, result.Error
 	}
-
-	fmt.Printf("Inserted Report ID: %v \n", r.ID)
-	return nil
+	return r.ID, nil
 }
 
 //Save to the report_logs table
-func (rl *ReportLog) Save() error {
+func (rl *ReportLog) Save(userReport UserReport, reportID uint) error {
 	//Todo: Save message to the reports table
+	rl.ID = 0
+	rl.ReportId = reportID
+	rl.UserId = uint(userReport.UserId)
+	rl.Action = userReport.Action
+	rl.CreatedAt = userReport.CreatedAt
+
+	result := db.Create(rl)
+	if result.Error != nil {
+		log.Printf("[x] Inserting report log fail: %v \n", result.Error)
+		return result.Error
+	}
 	return nil
 }
 
