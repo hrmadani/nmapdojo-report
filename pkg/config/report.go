@@ -1,18 +1,21 @@
 package config
 
 import (
+	"log"
+
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 )
 
 //Database Connecton Requirements
 const (
-	dbUserName   = "root"
-	dbPassword   = "secret"
-	dbHost       = "localhost"
-	dbname       = "nmapdojo"
-	confCharset  = "utf8mb4"
-	confLocation = "Asia%2fTehran"
+	dbUserName         = "root"
+	dbPassword         = "secret"
+	dbHost             = "localhost"
+	dbname             = "nmapdojo"
+	confCharset        = "utf8mb4"
+	confLocation       = "Asia%2fTehran"
+	MaxIdleConnections = 20
 )
 
 var (
@@ -27,9 +30,15 @@ func Connect() {
 	if err != nil {
 		panic("Database connection error: " + err.Error())
 	}
+
 	db = connection
 }
 
 func GetDB() *gorm.DB {
+	sqlDB, err := db.DB()
+	if err != nil {
+		log.Printf("error getting database: %v", err)
+	}
+	sqlDB.SetMaxIdleConns(MaxIdleConnections)
 	return db
 }
