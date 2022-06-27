@@ -1,8 +1,10 @@
 package controllers
 
 import (
+	"encoding/json"
 	"log"
 
+	"github.com/hrmadani/nmapdojo-report/pkg/models"
 	"github.com/streadway/amqp"
 )
 
@@ -19,6 +21,12 @@ const (
 	RabbitMQConsumer         = ""
 	RabbitMQAutoAck          = true
 	RabbitMQNoLocal          = false
+)
+
+var (
+	UserReport models.UserReport
+	Report     models.Report
+	ReportLog  models.ReportLog
 )
 
 //Error Handler
@@ -65,10 +73,42 @@ func ConsumeFromRabbit() {
 
 	go func() {
 		for d := range msgs {
-			log.Printf("Received a message: %s", d.Body)
+			json.Unmarshal([]byte(d.Body), &UserReport)
+			failOnError(err, "Failed to Unmarshal")
+
+			switch UserReport.Action {
+			case "add":
+				ActionIsAdd()
+			default:
+				ActionIsNotAdd()
+			}
 		}
 	}()
 
 	log.Printf(" [*] Waiting for messages. To exit press CTRL+C")
 	<-forever
+}
+
+//If the action is add :
+//Add new Report
+//Add new Log
+func ActionIsAdd() {
+	log.Printf("Action is ADD ==> ")
+	//Save new Report
+	reportId, _ := Report.Save(UserReport)
+
+	//Save new Log
+	ReportLog.Save(UserReport, reportId)
+}
+
+//If the action is add :
+//Change the expire_time in Report
+//Add new Log
+func ActionIsNotAdd() {
+	log.Printf("Action is NOT ADD ==> ")
+
+	Report.UpdateExpireTime(UserReport)
+
+	//Save new Log
+	ReportLog.Save(UserReport, uint(UserReport.ReportId))
 }
