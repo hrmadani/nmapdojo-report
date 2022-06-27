@@ -23,6 +23,11 @@ const (
 	RabbitMQNoLocal          = false
 )
 
+var (
+	UserReport models.UserReport
+	Report     models.Report
+)
+
 //Error Handler
 func failOnError(err error, msg string) {
 	if err != nil {
@@ -64,14 +69,13 @@ func ConsumeFromRabbit() {
 	failOnError(err, "Failed to register a consumer")
 
 	forever := make(chan bool)
-	var ReportLog models.UserReport
+
 	go func() {
 		for d := range msgs {
-			json.Unmarshal([]byte(d.Body), &ReportLog)
-
+			json.Unmarshal([]byte(d.Body), &UserReport)
 			failOnError(err, "Failed to Unmarshal")
 
-			switch ReportLog.Action {
+			switch UserReport.Action {
 			case "add":
 				ActionIsAdd()
 			default:
@@ -88,7 +92,8 @@ func ConsumeFromRabbit() {
 //Add new Report
 //Add new Log
 func ActionIsAdd() {
-	log.Println("Action is ADD")
+	log.Printf("Action is ADD ==> ")
+	Report.Save(UserReport)
 }
 
 //If the action is add :
