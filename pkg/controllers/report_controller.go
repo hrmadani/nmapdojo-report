@@ -105,5 +105,10 @@ func ActionIsAdd() {
 //Change the expire_time in Report
 //Add new Log
 func ActionIsNotAdd() {
-	log.Println("Action is not ADD")
+	log.Printf("Action is NOT ADD ==> ")
+
+	Report.UpdateExpireTime(UserReport)
+
+	//Save new Log
+	ReportLog.Save(UserReport, uint(UserReport.ReportId))
 }

@@ -12,6 +12,7 @@ import (
 var (
 	db         *gorm.DB
 	reportType ReportType
+	report     Report
 )
 
 //The struct of report types includes the Police, Traffic Jam, and Car crash reports
@@ -65,6 +66,11 @@ func GetReportTypeProperties(userReportType string) ReportType {
 	return reportType
 }
 
+//Find a report
+func (r *Report) FindById(id uint) Report {
+	return report
+}
+
 //Save to the reports table
 func (r *Report) Save(userReport UserReport) (uint, error) {
 	GetReportTypeProperties(userReport.ReportType)
@@ -100,7 +106,19 @@ func (rl *ReportLog) Save(userReport UserReport, reportID uint) error {
 }
 
 //updateExpireTime with + or -
-func (r *Report) UpdateExpireTime() error {
-	//Todo: Save message to the reports table
-	return nil
+func (r *Report) UpdateExpireTime(userReport UserReport) {
+	//Todo: Change ExpireTime message in the reports table
+	GetReportTypeProperties(userReport.ReportType)
+
+	//Find the report by id and fill the report variable
+	r.FindById(uint(userReport.ReportId))
+
+	switch userReport.Action {
+	case "like":
+		report.ExpireTime = report.ExpireTime.Add(time.Duration(reportType.FeedbackEffect) * time.Second)
+	default:
+		report.ExpireTime = report.ExpireTime.Add(time.Duration(-reportType.FeedbackEffect) * time.Second)
+	}
+
+	db.Model(&report).Update("expire_time", r.ExpireTime)
 }
