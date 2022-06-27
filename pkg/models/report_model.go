@@ -117,8 +117,7 @@ func (r *Report) UpdateExpireTime(userReport UserReport) {
 	case "like":
 		report.ExpireTime = report.ExpireTime.Add(time.Duration(reportType.FeedbackEffect) * time.Second)
 	default:
-		report.ExpireTime = report.ExpireTime.Add(time.Duration(-reportType.FeedbackEffect) * time.Second)
+		report.ExpireTime = report.ExpireTime.Add(time.Duration(-(reportType.FeedbackEffect)) * time.Second)
 	}
-
-	db.Model(&report).Update("expire_time", r.ExpireTime)
+	db.Model(&report).Where("id = ?", userReport.ReportId).Update("expire_time", report.ExpireTime)
 }
