@@ -11,7 +11,7 @@ import (
 const (
 	dbUserName         = "root"
 	dbPassword         = "secret"
-	dbHost             = "localhost"
+	dbHost             = "host.docker.internal"
 	dbname             = "nmapdojo"
 	confCharset        = "utf8mb4"
 	confLocation       = "Asia%2fTehran"
